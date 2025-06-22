@@ -5,12 +5,11 @@ from mcp.server.fastmcp import FastMCP
 
 # 初始化 MCP 服务器
 mcp = FastMCP("WeatherServer")
-
 # OpenWeather API 配置
 OPENWEATHER_API_BASE = "https://api.openweathermap.org/data/2.5/weather"
-API_KEY = "5c939a7cc59eb8696f4cd77bf75c5a9a"  # 请替换为你自己的 OpenWeather API Key
+# API_KEY = "5c939a7cc59eb8696f4cd77bf75c5a9a" # 请替换为你自己的 OpenWeather API Key
+API_KEY = "80411e8b12ae741008a53c2b852d129f" # 请替换为你自己的 OpenWeather API Key
 USER_AGENT = "weather-app/1.0"
-
 
 async def fetch_weather(city: str) -> dict[str, Any] | None:
     """
@@ -23,20 +22,19 @@ async def fetch_weather(city: str) -> dict[str, Any] | None:
         "appid": API_KEY,
         "units": "metric",
         "lang": "zh_cn"
-    }
+     }
     headers = {"User-Agent": USER_AGENT}
     async with httpx.AsyncClient() as client:
         try:
             response = await client.get(OPENWEATHER_API_BASE, params=params,
-                                      headers=headers, timeout=30.0)
+            headers=headers, timeout=30.0)
             response.raise_for_status()
-            return response.json()  # 返回字典类型
+            return response.json() # 返回字典类型
         except httpx.HTTPStatusError as e:
             return {"error": f"HTTP 错误: {e.response.status_code}"}
         except Exception as e:
             return {"error": f"请求失败: {str(e)}"}
-
-
+            
 def format_weather(data: dict[str, Any] | str) -> str:
     """
     将天气数据格式化为易读文本。
@@ -49,7 +47,7 @@ def format_weather(data: dict[str, Any] | str) -> str:
             data = json.loads(data)
         except Exception as e:
             return f"无法解析天气数据: {e}"
-    # 如果数据中包含错误信息，直接返回错误提示
+            # 如果数据中包含错误信息，直接返回错误提示
     if "error" in data:
         return f"{data['error']}"
     # 提取数据时做容错处理
@@ -66,9 +64,7 @@ def format_weather(data: dict[str, Any] | str) -> str:
         f"温度: {temp}°C\n"
         f"湿度: {humidity}%\n"
         f"风速: {wind_speed} m/s\n"
-        f"天气: {description}\n"
-    )
-
+        f"天气: {description}\n")
 
 @mcp.tool()
 async def query_weather(city: str) -> str:
@@ -80,6 +76,6 @@ async def query_weather(city: str) -> str:
     data = await fetch_weather(city)
     return format_weather(data)
 
-
 if __name__ == "__main__":
     mcp.run(transport='stdio')
+    
